@@ -63,14 +63,6 @@ def capture(cap=None):
 		# cv2.imshow('capture', frame)
 		if cv2.waitKey(1) & 0xFF == ord('q'):
 			break
-		# while True:
-		   #  frame1 = frame.copy()
-		   #  print(frame1)
-		   #  time.sleep(5)
-		# 	frame2 = frame.copy()
-		# 	print(frame2)
-		# 	quant(frame1, frame2)
-		# 	break
 		
 		if x%(5*10*2) == 0:
 			frame2 = frame
@@ -85,41 +77,6 @@ def capture(cap=None):
 
 	cap.stop()
 	out.release()
-	cv2.destroyAllWindows()
-
-text = ""
-
-def eye_track(cap2=None):
-	cap = cap.start()
-	gaze = GazeTracking()
-	while(True):
-		frame = cap2.read()
-
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-			break
-
-		global text
-		gaze.refresh(frame)
-		frame = gaze.annotated_frame()
-		if gaze.is_left():
-			text = "Left"
-		elif gaze.is_right():
-			text = "Right"
-		elif gaze.is_center():
-			text = "Center"
-		else:
-			text = "None"
-
-		cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
-		left_pupil = gaze.pupil_left_coords()
-		right_pupil = gaze.pupil_right_coords()
-		cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-		cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-		cv2.imshow("Eye tracking", frame)
-
-	cap2.stop()
-	# out.release()
 	cv2.destroyAllWindows()
 
 
@@ -142,13 +99,13 @@ if __name__ == '__main__':
 	t2 = Thread(target = timer)
 	t3 = Thread(target = blinkrate_new.func, kwargs={'vs': wvs})
 	t4 = Thread(target = expr, kwargs={'video_capture': wvs})
-	t5 = Thread(target = eye_track, kwargs={'cap2': wvs})
+	# t5 = Thread(target = eye_track, kwargs={'capp': wvs})
 
 	t1.start()
 	t3.start()
 	t4.start()
 	t2.start()
-	t5.start()
+	# t5.start()
 
 	ttt = 0
 	ii = 1
@@ -164,7 +121,7 @@ if __name__ == '__main__':
 	sheet1.write(0, 4, 'Max of Norm') 
 	sheet1.write(0, 5, 'Max of Zero') 
 	sheet1.write(0, 6, 'Emotion')
-	sheet1.write(0, 7, 'Eye position')
+	# sheet1.write(0, 7, 'Eye position')
 	
 	while(True):
 		time.sleep(5)
@@ -191,7 +148,7 @@ if __name__ == '__main__':
 		sheet1.write(ii,4,z) 
 		sheet1.write(ii,5,z1)
 		sheet1.write(ii,6,exp_send)
-		sheet1.write(ii,7,text)
+		# sheet1.write(ii,7,text)
 
 		wb.save('attentiondata.xls')
 		ii+=1
