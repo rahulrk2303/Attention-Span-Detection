@@ -136,7 +136,7 @@ def capture(cap=None):
 		    distract.append(1)
 		    blink_c = 0
 		else:
-			distract,append(0)
+			distract.append(0)
 			blink_c = 0
 		# time.sleep(0.5)
 
