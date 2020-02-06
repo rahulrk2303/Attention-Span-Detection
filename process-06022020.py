@@ -66,17 +66,12 @@ def difference(im1,im2):
 	(score, diff) = compare_ssim(im1, im2, full=True)
 	return score
 
-distract = []
-
 def capture(cap=None):
 	# cap = cv2.VideoCapture(0)
 	cap = cap.start()
 	# fourcc = cv2.VideoWriter_fourcc(*'XVID')
 	# out = cv2.VideoWriter('capture.avi',fourcc, 20.0, (640,480))
 	x = 0
-
-	gaze = GazeTracking()
-	blink_c = 0
 
 	while(True):
 		frame = cap.read()
@@ -104,60 +99,56 @@ def capture(cap=None):
 
 		x+=1
 
-		# while True:
-	    # We get a new frame from the webcam
-	    # frame = camm.read()
-
-	    # We send this frame to GazeTracking to analyze it
-		gaze.refresh(frame)
-
-		frame = gaze.annotated_frame()
-		text = ""
-
-		if gaze.is_blinking():
-		    text = "Blinking"
-		    # distract.append(0)
-		    blink_c += 1
-		    if blink_c >=10:
-		    	distract.append(0)
-			# else:
-	  #   		distract.append(0.5)
-		    	# print(blink_c)
-		elif gaze.is_right():
-		    text = "Looking right"
-		    distract.append(0.2)
-		    blink_c = 0
-		elif gaze.is_left():
-		    text = "Looking left"
-		    distract.append(0.2)
-		    blink_c = 0
-		elif gaze.is_center():
-		    text = "Looking center"
-		    distract.append(1)
-		    blink_c = 0
-		# time.sleep(0.5)
-
-		cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
-
-		left_pupil = gaze.pupil_left_coords()
-		right_pupil = gaze.pupil_right_coords()
-		cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-		cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
-
-		cv2.imshow("Distraction", frame)
-
-		if cv2.waitKey(1) & 0xFF == ord('q'):
-		    break
-
-
 	cap.stop()
-	# out.release()
+	out.release()
 	cv2.destroyAllWindows()
 
 
 timer_run = True
 i = 0
 
+distract = []
+
+def gaze_track(camm=None):
+	gaze = GazeTracking()
+	camm = camm.start()
+	# global distract
+	while True:
+	    # We get a new frame from the webcam
+	    frame = camm.read()
+
+	    # We send this frame to GazeTracking to analyze it
+	    gaze.refresh(frame)
+
+	    frame = gaze.annotated_frame()
+	    text = ""
+
+	    if gaze.is_blinking():
+	        text = "Blinking"
+	        distract.append(1)
+	        # blink_c += 1
+	    elif gaze.is_right():
+	        text = "Looking right"
+	        distract.append(1)
+	    elif gaze.is_left():
+	        text = "Looking left"
+	        distract.append(1)
+	    elif gaze.is_center():
+	        text = "Looking center"
+	        distract.append(0)
+	    # time.sleep(0.5)
+
+	    cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
+
+	    left_pupil = gaze.pupil_left_coords()
+	    right_pupil = gaze.pupil_right_coords()
+	    cv2.putText(frame, "Left pupil:  " + str(left_pupil), (90, 130), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+	    cv2.putText(frame, "Right pupil: " + str(right_pupil), (90, 165), cv2.FONT_HERSHEY_DUPLEX, 0.9, (147, 58, 31), 1)
+
+	    cv2.imshow("Distraction", frame)
+
+	    if cv2.waitKey(1) & 0xFF == ord('q'):
+	        break
 
 def timer ():
 	
@@ -170,19 +161,19 @@ def timer ():
 if __name__ == '__main__':
 
 	wvs = WebcamVideoStream()
-	t1 = Thread(target = capture, kwargs={'cap': wvs})
-	t2 = Thread(target = timer)
-	t3 = Thread(target = blinkrate_new.func, kwargs={'vs': wvs})
-	t4 = Thread(target = expr, kwargs={'video_capture': wvs})
-	# t5 = Thread(target = gaze_track, kwargs={'camm': wvs})
+	# t1 = Thread(target = capture, kwargs={'cap': wvs})
+	# t2 = Thread(target = timer)
+	# t3 = Thread(target = blinkrate_new.func, kwargs={'vs': wvs})
+	# t4 = Thread(target = expr, kwargs={'video_capture': wvs})
+	t5 = Thread(target = gaze_track, kwargs={'camm': wvs})
 	# t6 = Thread(target = audio)
 
+	t5.start()
+	# t1.start()
+	# t2.start()
+	# t3.start()
+	# t4.start()
 	
-	t1.start()
-	t2.start()
-	t3.start()
-	t4.start()
-	# t5.start()
 	# t6.start()
 
 	ttt = 0
