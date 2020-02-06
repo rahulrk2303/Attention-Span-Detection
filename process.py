@@ -135,6 +135,9 @@ def capture(cap=None):
 		    text = "Looking center"
 		    distract.append(1)
 		    blink_c = 0
+		else:
+			distract,append(0)
+			blink_c = 0
 		# time.sleep(0.5)
 
 		cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
