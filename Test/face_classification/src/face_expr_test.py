@@ -15,7 +15,10 @@ from Test.face_classification.src.utils.preprocessor import preprocess_input
 val=[]
 def ret_exp():
     global val
-    x = np.mean(val) 
+    if len(val) != 0:
+        x = mode(val) 
+    else:
+        x=5
     val = []
     return x
 
@@ -58,7 +61,7 @@ def expr(video_capture=None):
     emotion_window = []
 
     # starting video streaming
-    cv2.namedWindow('window_frame')
+    cv2.namedWindow('Emotion')
     # video_capture = cv2.VideoCapture(0)
     while True:
         bgr_image = video_capture.read()
@@ -113,7 +116,7 @@ def expr(video_capture=None):
                       color, 0, -45, 1, 1)
 
         bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
-        cv2.imshow('window_frame', bgr_image)
+        cv2.imshow('Emotion', bgr_image)
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     video_capture.stop()

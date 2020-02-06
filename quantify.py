@@ -32,9 +32,15 @@ def quant(file1, file2):
     # read images as 2D arrays (convert to grayscale for simplicity)
     # img1 = to_grayscale(imageio.imread(file1).astype(float))
     # cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
     img1 = cv2.cvtColor(file1, cv2.COLOR_BGR2GRAY)
+    # img1 = file1
+    
     # img2 = to_grayscale(imageio.imread(file2).astype(float))
+
     img2 = cv2.cvtColor(file2, cv2.COLOR_BGR2GRAY)
+    # img2 = file2
+
     # print(img1)
     # print(img2)
     # compare
@@ -61,12 +67,14 @@ def compare_images(img1, img2):
     m_norm = sum(abs(diff))  # Manhattan norm
     z_norm = norm(diff.ravel(), 0)  # Zero norm
     return (m_norm, z_norm)
+
 def to_grayscale(arr):
     "If arr is a color image (3D array), convert it to grayscale (2D array)."
     if len(arr.shape) == 3:
         return average(arr, -1)  # average over the last axis (color channels)
     else:
         return arr
+        
 def normalize(arr):
     rng = arr.max()-arr.min()
     amin = arr.min()
