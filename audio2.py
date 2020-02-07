@@ -2,6 +2,7 @@ try:
     import pyaudio
     import numpy as np
     import pylab
+    import matplotlib
     import matplotlib.pyplot as plt
     from scipy.io import wavfile
     import time
@@ -18,12 +19,12 @@ x = np.arange(10000)
 y = np.random.randn(10000)
 
 # Plot 0 is for raw audio data
-li, = ax[0].plot(x, y)
+# li, = ax[0].plot(x, y)
 ax[0].set_xlim(0,1000)
 ax[0].set_ylim(-5000,5000)
 ax[0].set_title("Raw Audio Signal")
 # Plot 1 is for the FFT of the audio
-li2, = ax[1].plot(x, y)
+# li2, = ax[1].plot(x, y)
 ax[1].set_xlim(0,5000)
 ax[1].set_ylim(-100,100)
 ax[1].set_title("Fast Fourier Transform")
@@ -77,7 +78,7 @@ def plot_data(in_data):
     else:
         return False
 
-def audio():
+while True:
     # Open the connection and start streaming the data
     stream.start_stream()
     # print "\n+---------------------------------+"
@@ -89,6 +90,7 @@ def audio():
     while keep_going:
         try:
             plot_data(stream.read(CHUNK))
+            pass
         except KeyboardInterrupt:
             keep_going=False
         except:
@@ -99,4 +101,4 @@ def audio():
 stream.stop_stream()
 stream.close()
 
-audio.terminate()
+# audio.terminate()

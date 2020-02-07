@@ -69,8 +69,11 @@ def expr(video_capture=None):
         rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
         faces = detect_faces(face_detection, gray_image)
 
+        color = 1.0*np.asarray((255, 255, 255))
+
         for face_coordinates in faces:
 
+            
             x1, x2, y1, y2 = apply_offsets(face_coordinates, emotion_offsets)
             gray_face = gray_image[y1:y2, x1:x2]
             try:

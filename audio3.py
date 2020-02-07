@@ -27,10 +27,12 @@ def audio():
     # for i in range(int(20*RATE/CHUNK)): #do this for 10 seconds
     while True:
         soundplot(stream)
-        # im = cv2.imread('03.png')
+        im = cv2.imread('03.png')
         # cv2.imshow("Audio", im)
         # if cv2.waitKey(1) == 27:
         #     break
     stream.stop_stream()
     stream.close()
     p.terminate()
+
+# audio()

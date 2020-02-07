@@ -13,7 +13,6 @@ import imutils
 from audio3 import audio
 from flask import url_for, jsonify, Flask, render_template, request, jsonify
 
-
 app = Flask(__name__)
 
 ssim = 0
@@ -135,9 +134,6 @@ def capture(cap=None):
 		    text = "Looking center"
 		    distract.append(1)
 		    blink_c = 0
-		else:
-			distract.append(0)
-			blink_c = 0
 		# time.sleep(0.5)
 
 		cv2.putText(frame, text, (90, 60), cv2.FONT_HERSHEY_DUPLEX, 1.6, (147, 58, 31), 2)
@@ -173,18 +169,18 @@ def timer ():
 if __name__ == '__main__':
 
 	wvs = WebcamVideoStream()
+	t4 = Thread(target = expr, kwargs={'video_capture': wvs})
 	t1 = Thread(target = capture, kwargs={'cap': wvs})
 	t2 = Thread(target = timer)
 	t3 = Thread(target = blinkrate_new.func, kwargs={'vs': wvs})
-	t4 = Thread(target = expr, kwargs={'video_capture': wvs})
 	# t5 = Thread(target = gaze_track, kwargs={'camm': wvs})
 	# t6 = Thread(target = audio)
 
-	
+
+	t4.start()
 	t1.start()
 	t2.start()
-	t3.start()
-	t4.start()
+	t3.start()	
 	# t5.start()
 	# t6.start()
 
