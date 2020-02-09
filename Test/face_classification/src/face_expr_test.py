@@ -4,6 +4,7 @@ import cv2
 import time
 from keras.models import load_model
 import numpy as np
+from scipy import stats as st
 
 from Test.face_classification.src.utils.datasets import get_labels
 from Test.face_classification.src.utils.inference import detect_faces
@@ -16,23 +17,24 @@ val=[]
 def ret_exp():
     global val
     if len(val) != 0:
-        x = mode(val) 
+        # x = mode(val)
+        x = int(st.mode(val)[0]) 
     else:
-        x=5
+        x=3
     val = []
     return x
 
 def evaluvate(text):
     if text=='happy':
-        val.append(1)
+        val.append(5)
     elif text =='angry':
-        val.append(2)
+        val.append(1)
     elif text == 'sad':
-        val.append(3)
+        val.append(2)
     elif text =='suprise':
         val.append(4)
     else:
-        val.append(5)
+        val.append(3)
 
 
 

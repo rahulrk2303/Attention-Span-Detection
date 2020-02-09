@@ -80,43 +80,31 @@ def capture(cap=None):
 	gaze = GazeTracking()
 	blink_c = 0
 
-	prev_time = time.time()
-	
-	frame1 = cap.read()
-
-	
-	
 	while(True):
 		frame = cap.read()
-		global ssim
-		cur_time = time.time()
-		if cur_time - prev_time >= 4.5:
-			prev_time = cur_time
-			frame2 = cap.read()
-			ssim = difference(frame1,frame2)
 		# out.write(frame)
-			frame1 = frame2
-			# cv2.imshow("frame1", frame)
-			# cv2.imshow("frame2", frame2)
+
 		# cv2.imshow('capture', frame)
+		if cv2.waitKey(1) & 0xFF == ord('q'):
+			break
 		
 		# frame = subtractor.apply(frame) #Background sub
 		# cv2.imshow('capture', frame)
 		
-		# global ssim
-		# if x%(5*10*2) == 0:
-		# 	frame2 = frame
-		# if (x-50)%(5*10*2) == 0:
-		# 	frame1 = frame
-		# 	# quant(frame1, frame2)
-		# 	if x%2==0:
-		# 		# quant(frame1, frame2)
-		# 		ssim = difference(frame1,frame2)
-		# 	else:
-		# 		# quant(frame2, frame1)
-		# 		ssim = difference(frame2,frame1)
+		global ssim
+		if x%(5*10*2) == 0:
+			frame2 = frame
+		if (x-50)%(5*10*2) == 0:
+			frame1 = frame
+			# quant(frame1, frame2)
+			if x%2==0:
+				# quant(frame1, frame2)
+				ssim = difference(frame1,frame2)
+			else:
+				# quant(frame2, frame1)
+				ssim = difference(frame2,frame1)
 
-		# x+=1
+		x+=1
 
 		# while True:
 	    # We get a new frame from the webcam
@@ -203,7 +191,7 @@ if __name__ == '__main__':
 	t2.start()
 	t3.start()	
 	t6.start()
-
+	# t7.start()
 
 	ttt = 0
 	ii = 1
@@ -213,11 +201,11 @@ if __name__ == '__main__':
 	sheet1 = wb.add_sheet('Sheet 1') 
 	sheet1.write(0, 0, 'Time') 
 	sheet1.write(0, 1, 'Blink count') 
-	sheet1.write(0, 2, 'Pixel Similarity')
+	sheet1.write(0, 2, 'Pixel Difference')
 	sheet1.write(0, 3, 'Emotion')
-	sheet1.write(0, 4, 'Looking at')
+	sheet1.write(0, 4, 'Distraction')
 	sheet1.write(0, 5, 'Noise level')
-	# sheet1.write(0, 6, 'Attention level')
+	sheet1.write(0, 6, 'Attention level')
 	b1 = b3 = ssim = exp = distract_mean = rn = 0
 	while(True):
 		time.sleep(5)
@@ -225,8 +213,8 @@ if __name__ == '__main__':
 		b2 = blinkrate_new.blink_count()
 		b3 = b2 - b1
 		b1 = b2
-		# if b3==0:
-		# 	b3=1
+		if b3==0:
+			b3=0.01
 		exp = int(ret_exp())
 		distract_mean = np.mean(distract)
 		rn = ret_noise()
@@ -250,7 +238,7 @@ if __name__ == '__main__':
 		
 		wb.save('attentiondata.xls')
 		ii+=1
-		# norm()
+		norm()
 
 		
 		# if cv2.waitKey(1) & 0xFF == ord('m'):
