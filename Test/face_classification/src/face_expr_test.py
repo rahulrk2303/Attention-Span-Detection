@@ -1,5 +1,6 @@
 from statistics import mode
-
+import tensorflow as tf
+graph = tf.get_default_graph()
 import cv2
 import time
 from keras.models import load_model
@@ -18,43 +19,61 @@ def ret_exp():
     global val
     if len(val) != 0:
         # x = mode(val)
-        x = int(st.mode(val)[0]) 
+        # x = (st.mode(val)[0]) 
+        x = np.mean(val)
     else:
-        x=3
+        x=0 # If no face found
     val = []
     return x
 
 def evaluvate(text):
     if text=='happy':
-        val.append(5)
-    elif text =='angry':
         val.append(1)
+    elif text =='angry':
+        val.append(0.1)
     elif text == 'sad':
-        val.append(2)
+        val.append(0.2)
     elif text =='suprise':
-        val.append(4)
-    else:
-        val.append(3)
+        val.append(0.6)
+    elif text == 'fear':
+        val.append(0.3)
+    elif text =='disgust':
+        val.append(0.4)
+    elif text =='neutral':
+        val.append(0.8)
+    # else:
+    # 	# print("No face")
+    # 	val.append(0)
+
+timer_run = True
+
+def stop_expr_thread():
+    global timer_run
+    timer_run = False
 
 
 
+detection_model_path = 'Test/face_classification/trained_models/detection_models/haarcascade_frontalface_default.xml'
+emotion_model_path = 'Test/face_classification/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
+emotion_labels = get_labels('fer2013')
+
+
+
+# loading models
+face_detection = load_detection_model(detection_model_path)
+emotion_classifier = load_model(emotion_model_path, compile=False)
 
 
 
 def expr(video_capture=None):
     em_list = []
     # parameters for loading data and images
-    detection_model_path = 'Test/face_classification/trained_models/detection_models/haarcascade_frontalface_default.xml'
-    emotion_model_path = 'Test/face_classification/trained_models/emotion_models/fer2013_mini_XCEPTION.102-0.66.hdf5'
-    emotion_labels = get_labels('fer2013')
+
+    global emotion_labels
 
     # hyper-parameters for bounding boxes shape
     frame_window = 10
-    emotion_offsets = (20, 40)
-
-    # loading models
-    face_detection = load_detection_model(detection_model_path)
-    emotion_classifier = load_model(emotion_model_path, compile=False)
+    emotion_offsets = (20, 40)   
 
     # getting input model shapes for inference
     emotion_target_size = emotion_classifier.input_shape[1:3]
@@ -64,12 +83,17 @@ def expr(video_capture=None):
 
     # starting video streaming
     cv2.namedWindow('Emotion')
+
+
     # video_capture = cv2.VideoCapture(0)
-    while True:
+    while timer_run:
         bgr_image = video_capture.read()
         gray_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2GRAY)
         rgb_image = cv2.cvtColor(bgr_image, cv2.COLOR_BGR2RGB)
         faces = detect_faces(face_detection, gray_image)
+        # print("Faces : ", faces)
+        if len(faces) == 0:
+        	val.append(0)
 
         color = 1.0*np.asarray((255, 255, 255))
 
@@ -86,13 +110,14 @@ def expr(video_capture=None):
             gray_face = preprocess_input(gray_face, True)
             gray_face = np.expand_dims(gray_face, 0)
             gray_face = np.expand_dims(gray_face, -1)
-            emotion_prediction = emotion_classifier.predict(gray_face)
+            with graph.as_default():
+                emotion_prediction = emotion_classifier.predict(gray_face)
             emotion_probability = np.max(emotion_prediction)
             emotion_label_arg = np.argmax(emotion_prediction)
             emotion_text = emotion_labels[emotion_label_arg]
             emotion_window.append(emotion_text)
             em_list.append(emotion_text)
-            evaluvate(emotion_text)
+            
             if len(emotion_window) > frame_window:
                 emotion_window.pop(0)
             try:
@@ -109,9 +134,17 @@ def expr(video_capture=None):
                 color = emotion_probability * np.asarray((255, 255, 0))                
             elif emotion_text == 'surprise':
                 color = emotion_probability * np.asarray((0, 255, 255))
-            else:
-                color = emotion_probability * np.asarray((0, 255, 0))
+            elif emotion_text == 'disgust':
+                color = emotion_probability * np.asarray((255, 0, 255))
+            elif emotion_text == 'fear':
+                color = emotion_probability * np.asarray((0, 0, 0))
+            elif emotion_text == 'neutral':
+                color = emotion_probability * np.asarray((255, 255, 0))
+            # else:
+            # 	emotion_text = 'none'
+            	# color = emotion_probability * np.asarray((255, 255, 255))
 
+            evaluvate(emotion_text)
             color = color.astype(int)
             color = color.tolist()
         
@@ -122,6 +155,7 @@ def expr(video_capture=None):
 
         bgr_image = cv2.cvtColor(rgb_image, cv2.COLOR_RGB2BGR)
         cv2.imshow('Emotion', bgr_image)
+        # print("HELLOx")
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
     video_capture.stop()

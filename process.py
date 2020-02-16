@@ -2,15 +2,15 @@ import cv2
 import time
 import numpy as np
 from threading import Thread, Lock
-import blinkrate_new
+from blinkrate_new import func, blink_count, stop_blink_thread
 # from quantify import quant, ret_quant
-from Test.face_classification.src.face_expr_test import expr,ret_exp
+from Test.face_classification.src.face_expr_test import expr,ret_exp,stop_expr_thread
 import xlwt
 from xlwt import Workbook
 from Test.GazeTracking.gaze_tracking.gaze_tracking import GazeTracking
 from skimage.measure import compare_ssim
 import imutils
-from audio2 import audio, ret_noise
+from audio2 import audio, ret_noise, stop_audio_thread
 from flask import url_for, jsonify, Flask, render_template, request, jsonify
 from mail import send_mail
 from normalize import norm
@@ -19,6 +19,8 @@ from normalize import norm
 app = Flask(__name__)
 
 ssim = 0
+timer_run = True
+
 
 class WebcamVideoStream :
 	def __init__(self, src = 0, width = 640, height = 480) :
@@ -76,17 +78,17 @@ def capture(cap=None):
 	# fourcc = cv2.VideoWriter_fourcc(*'XVID')
 	# out = cv2.VideoWriter('capture.avi',fourcc, 20.0, (640,480))
 	x = 0
-
+	
 	gaze = GazeTracking()
 	blink_c = 0
 
 	prev_time = time.time()
 	
 	frame1 = cap.read()
-
 	
+	global timer_run
 	
-	while(True):
+	while(timer_run):
 		frame = cap.read()
 		global ssim
 		cur_time = time.time()
@@ -172,16 +174,18 @@ def capture(cap=None):
 	cv2.destroyAllWindows()
 
 
-timer_run = True
+# timer_run = True
 i = 0
 
 
 def timer ():
-	
+	global timer_run
 	while (timer_run):
 		time.sleep(1)
 		global i
 		i = i+1
+		if i>=30:
+			timer_run = False
 
 # @app.route('/')
 
@@ -192,7 +196,7 @@ if __name__ == '__main__':
 	t4 = Thread(target = expr, kwargs={'video_capture': wvs})
 	t1 = Thread(target = capture, kwargs={'cap': wvs})
 	t2 = Thread(target = timer)
-	t3 = Thread(target = blinkrate_new.func, kwargs={'vs': wvs})
+	t3 = Thread(target = func, kwargs={'vs': wvs})
 	# t5 = Thread(target = gaze_track, kwargs={'camm': wvs})
 	t6 = Thread(target = audio)
 	# t7 = Thread(target = send_mail)
@@ -219,15 +223,18 @@ if __name__ == '__main__':
 	sheet1.write(0, 5, 'Noise level')
 	# sheet1.write(0, 6, 'Attention level')
 	b1 = b3 = ssim = exp = distract_mean = rn = 0
-	while(True):
+
+	# global timer_run
+
+	while(timer_run):
 		time.sleep(5)
 		ttt+=5
-		b2 = blinkrate_new.blink_count()
+		b2 = blink_count()
 		b3 = b2 - b1
 		b1 = b2
 		# if b3==0:
 		# 	b3=1
-		exp = int(ret_exp())
+		exp = ret_exp()
 		distract_mean = np.mean(distract)
 		rn = ret_noise()
 
@@ -257,4 +264,16 @@ if __name__ == '__main__':
 		# 	send_mail()
 		# 	break
 
+	print("Stopping")
+
+	stop_expr_thread()
+	stop_blink_thread()
+	stop_audio_thread()
+
+	t4.join()
+	t1.join()
+	t2.join()
+	t3.join()
+	t6.join()
 	
+

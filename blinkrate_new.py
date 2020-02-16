@@ -88,7 +88,7 @@ def func(vs=None):
     # time.sleep(1.0)
     
     # loop over frames from the video stream
-    while True:
+    while timer_run:
         # if this is a file video stream, then we need to check if
         # there any more frames left in the buffer to process
         # if fileStream and not vs.more():
@@ -183,3 +183,8 @@ def func(vs=None):
     #main(TOTAL=args.TOTAL)
     # func()
    
+timer_run = True
+
+def stop_blink_thread():
+    global timer_run
+    timer_run = False

@@ -33,7 +33,7 @@ def norm():
 	bmin = min(blink)-0.1
 	bmax = max(blink)+0.1
 	blink = [1-((i-bmin)/(bmax-bmin)) for i in blink]  	# negative correlation
-	emotion = [i/5 for i in emotion]				# positive correlation
+	# emotion = [i/5 for i in emotion]				# positive correlation
 	pixel = [i for i in pixel]						# positive correlation
 	# noise = normalize(noise)
 	# print(noise)
@@ -58,7 +58,7 @@ def norm():
 	# print("Distraction", dist)
 	# print("Noise", noise)
 	# print("Avg attention avg : ", att)
-	dfout = pd.DataFrame(list(zip(time, blink, pixel, emotion, dist, noise, att)), columns =['Time', 'Blink count', 'Pixel Difference', 'Emotion', 'Distraction', 'Noise level', 'Average attention'])
+	dfout = pd.DataFrame(list(zip(time, blink, pixel, emotion, dist, noise, att)), columns =['Time', 'Blink count', 'Pixel Similarity', 'Emotion', 'Looking at', 'Noise level', 'Average attention'])
 	print(dfout)
 
 	fig = plt.figure(1)
@@ -97,9 +97,9 @@ def norm():
 	plt.locator_params(axis='x', nbins=5)
 	plt.locator_params(axis='y', nbins=5)
 	plt.plot(time,dist)
-	plt.title('Distraction level')
+	plt.title('Looking at')
 	plt.xlabel('Time (s)')
-	plt.ylabel('Distraction')	
+	plt.ylabel('Eye tracking')	
 
 	# small subplot 3
 	plt.subplot2grid((2,3), (1,1))
